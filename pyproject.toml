@@ -19,4 +19,4 @@ dev = [
 ]
 
 [tool.ruff]
-select = ["I001"]
+select = ["E", "F", "I001"]
