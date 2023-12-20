@@ -63,3 +63,19 @@ def read_mnc(filename: str) -> list[BrandMobileCodes]:
                 # TODO: should be logged
                 pass
     return res
+
+
+class ProviderResolver:
+    def __init__(
+        self, mobile_sites: list[MobileSite], brand_mobile_codes: list[BrandMobileCodes]
+    ):
+        self.mobile_sites = mobile_sites
+        self.brand_mobile_codes = brand_mobile_codes
+        self.provider_id_to_brand = {}
+        for brand_mobile_code in self.brand_mobile_codes:
+            self.provider_id_to_brand[
+                f"{brand_mobile_code.mcc:d}{brand_mobile_code.mnc:02d}"
+            ] = brand_mobile_code.brand
+
+    def resolve(self, provider_id: str) -> str:
+        return self.provider_id_to_brand[provider_id]
