@@ -1,12 +1,11 @@
 import csv
 from dataclasses import dataclass
-from typing import Tuple
 
 
 @dataclass
 class MobileSite:
     provider: str
-    lambert93: Tuple[int, int]
+    lambert93: tuple[int, int]
     has_2g: bool
     has_3g: bool
     has_4g: bool
