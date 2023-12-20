@@ -1,0 +1,141 @@
+{
+  "type": "FeatureCollection",
+  "version": "draft",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.290084,
+          49.897442
+        ]
+      },
+      "properties": {
+        "label": "8 Boulevard du Port 80000 Amiens",
+        "score": 0.4921738277511961,
+        "housenumber": "8",
+        "id": "80021_6590_00008",
+        "name": "8 Boulevard du Port",
+        "postcode": "80000",
+        "citycode": "80021",
+        "x": 648952.58,
+        "y": 6977867.14,
+        "city": "Amiens",
+        "context": "80, Somme, Hauts-de-France",
+        "type": "housenumber",
+        "importance": 0.67707,
+        "street": "Boulevard du Port"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.062794,
+          49.0317
+        ]
+      },
+      "properties": {
+        "label": "8 Boulevard du Port 95000 Cergy",
+        "score": 0.4920865550239234,
+        "housenumber": "8",
+        "id": "95127_1448_00008",
+        "name": "8 Boulevard du Port",
+        "postcode": "95000",
+        "citycode": "95127",
+        "x": 631466.41,
+        "y": 6881718.82,
+        "city": "Cergy",
+        "context": "95, Val-d'Oise, Île-de-France",
+        "type": "housenumber",
+        "importance": 0.67611,
+        "street": "Boulevard du Port"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.605884,
+          43.425225
+        ]
+      },
+      "properties": {
+        "label": "8 Boulevard du Port 34140 Mèze",
+        "score": 0.4870011004784689,
+        "housenumber": "8",
+        "id": "34157_0770_00008",
+        "name": "8 Boulevard du Port",
+        "postcode": "34140",
+        "citycode": "34157",
+        "x": 749085.29,
+        "y": 6258645.39,
+        "city": "Mèze",
+        "context": "34, Hérault, Occitanie",
+        "type": "housenumber",
+        "importance": 0.62017,
+        "street": "Boulevard du Port"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.036731,
+          42.79091
+        ]
+      },
+      "properties": {
+        "label": "8 Boulevard du Port 66420 Le Barcarès",
+        "score": 0.48112200956937795,
+        "housenumber": "8",
+        "id": "66017_0249_00008",
+        "name": "8 Boulevard du Port",
+        "postcode": "66420",
+        "citycode": "66017",
+        "x": 703008.57,
+        "y": 6187933.13,
+        "city": "Le Barcarès",
+        "context": "66, Pyrénées-Orientales, Occitanie",
+        "type": "housenumber",
+        "importance": 0.5555,
+        "street": "Boulevard du Port"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.340983,
+          47.258811
+        ]
+      },
+      "properties": {
+        "label": "8 Boulevard du Port 44380 Pornichet",
+        "score": 0.47710291866028703,
+        "housenumber": "8",
+        "id": "44132_0141_00008",
+        "banId": "e39398ae-b8aa-420a-a79c-02580b0f3ac2",
+        "name": "8 Boulevard du Port",
+        "postcode": "44380",
+        "citycode": "44132",
+        "x": 296409.78,
+        "y": 6697932.63,
+        "city": "Pornichet",
+        "context": "44, Loire-Atlantique, Pays de la Loire",
+        "type": "housenumber",
+        "importance": 0.51129,
+        "street": "Boulevard du Port"
+      }
+    }
+  ],
+  "attribution": "BAN",
+  "licence": "ETALAB-2.0",
+  "query": "8 bd du port",
+  "limit": 5
+}
