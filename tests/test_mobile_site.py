@@ -3,6 +3,7 @@ from paperless_bt.mobile_site import (
     BrandMobileCodes,
     MobileSite,
     ProviderResolver,
+    UnknownProvider,
     read_mnc,
     read_mobile_site,
 )
@@ -57,9 +58,22 @@ def provider_resolver(
     "provider_id,brand",
     [("20898", "Air France"), ("20801", "Orange"), ("20809", "SFR")],
 )
-def test_provider_resolver(
+def test_provider_resolver_with_known_id(
     provider_resolver: ProviderResolver,
     provider_id: str,
     brand: str,
 ):
     assert provider_resolver.resolve(provider_id) == brand
+
+
+@pytest.mark.parametrize(
+    "provider_id",
+    ["20847", "2"],
+)
+def test_provider_resolver_with_unknown_id(
+    provider_resolver: ProviderResolver,
+    provider_id: str,
+):
+    with pytest.raises(UnknownProvider) as ex:
+        provider_resolver.resolve(provider_id)
+    assert provider_id in str(ex.value)

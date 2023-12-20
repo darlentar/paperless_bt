@@ -78,4 +78,11 @@ class ProviderResolver:
             ] = brand_mobile_code.brand
 
     def resolve(self, provider_id: str) -> str:
-        return self.provider_id_to_brand[provider_id]
+        try:
+            return self.provider_id_to_brand[provider_id]
+        except KeyError:
+            raise UnknownProvider(provider_id)
+
+
+class UnknownProvider(Exception):
+    pass
