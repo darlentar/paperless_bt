@@ -34,3 +34,32 @@ def read_mobile_site(filename: str) -> list[MobileSite]:
                 # TODO: should be logged
                 pass
     return res
+
+
+@dataclass
+class BrandMobileCodes:
+    mcc: int
+    mnc: int
+    brand: str
+
+
+def read_mnc(filename: str) -> list[BrandMobileCodes]:
+    res = []
+    with open(filename, newline="") as csvfile:
+        mnc_reader = csv.reader(csvfile, delimiter=",")
+        # ignore headers
+        next(mnc_reader, None)
+        for row in mnc_reader:
+            try:
+                res.append(
+                    BrandMobileCodes(
+                        mcc=int(row[0]),
+                        mnc=int(row[1]),
+                        brand=row[2],
+                    )
+                )
+            except ValueError:
+                # we ignore the line if we can't convert the values
+                # TODO: should be logged
+                pass
+    return res

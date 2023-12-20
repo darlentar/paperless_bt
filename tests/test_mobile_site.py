@@ -1,4 +1,9 @@
-from paperless_bt.mobile_site import MobileSite, read_mobile_site
+from paperless_bt.mobile_site import (
+    BrandMobileCodes,
+    MobileSite,
+    read_mnc,
+    read_mobile_site,
+)
 
 
 def test_read_mobile_site():
@@ -12,3 +17,10 @@ def test_read_mobile_site():
         has_3g=True,
         has_4g=True,
     )
+
+
+def test_read_french_mnc():
+    # TODO: Do not hardcode this
+    french_mnc = read_mnc("french_mnc.csv")
+    assert len(french_mnc) == 46
+    assert french_mnc[-1] == BrandMobileCodes(mcc=208, mnc=98, brand="Air France")
