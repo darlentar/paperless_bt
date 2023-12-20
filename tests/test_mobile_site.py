@@ -25,7 +25,11 @@ def test_read_french_mnc():
     # TODO: Do not hardcode this
     french_mnc = read_mnc("french_mnc.csv")
     assert len(french_mnc) == 46
-    assert french_mnc[-1] == BrandMobileCodes(mcc=208, mnc=98, brand="Air France")
+    assert french_mnc[-1] == BrandMobileCodes(
+        mcc=208,
+        mnc=98,
+        brand="Air France",
+    )
 
 
 @pytest.fixture()
@@ -43,7 +47,10 @@ def provider_resolver(
     mobile_sites: list[MobileSite],
     french_mnc: list[BrandMobileCodes],
 ) -> ProviderResolver:
-    return ProviderResolver(mobile_sites=mobile_sites, brand_mobile_codes=french_mnc)
+    return ProviderResolver(
+        mobile_sites=mobile_sites,
+        brand_mobile_codes=french_mnc,
+    )
 
 
 @pytest.mark.parametrize(
