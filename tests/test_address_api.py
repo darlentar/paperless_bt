@@ -1,9 +1,11 @@
 import pytest
 from paperless_bt.address_api import (
     Feature,
+    FeatureCollection,
     Geometry,
     Properties,
     parse_address_api_response,
+    request_address_api,
 )
 
 
@@ -23,3 +25,13 @@ def test_parse_address_api_response(address_api_json):
             y=6977867.14,
         ),
     )
+
+
+@pytest.mark.http_request
+@pytest.mark.asyncio
+async def test_request_address_api():
+    response = await request_address_api(search="8+bd+du+port")
+    assert isinstance(response, str)
+    # we just check that response is a FeatureCollection if parsing failed
+    # it raises an error.
+    assert isinstance(parse_address_api_response(response), FeatureCollection)
