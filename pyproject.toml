@@ -1,11 +1,13 @@
 [project]
-name = "python-quickstart"
+name = "paperless-bt"
 version = "0.0.0"
-description = ""
+description = "Parperless backend test"
 authors = [
     {name = "Damien Bihel", email = "biheldamien@gmail.com"},
 ]
-dependencies = []
+dependencies = [
+    "fastapi>=0.105.0",
+]
 requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "MIT"}
