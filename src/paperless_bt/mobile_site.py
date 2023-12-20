@@ -67,7 +67,9 @@ def read_mnc(filename: str) -> list[BrandMobileCodes]:
 
 class ProviderResolver:
     def __init__(
-        self, mobile_sites: list[MobileSite], brand_mobile_codes: list[BrandMobileCodes]
+        self,
+        mobile_sites: list[MobileSite],
+        brand_mobile_codes: list[BrandMobileCodes],
     ):
         self.mobile_sites = mobile_sites
         self.brand_mobile_codes = brand_mobile_codes
