@@ -1,7 +1,17 @@
 import math
 
 import pytest
-from paperless_bt.coordinates import EARTH_RADIUS, compute_haversine, lamber93_to_gps
+from paperless_bt.coordinates import (
+    EARTH_RADIUS,
+    compute_haversine,
+    lamber93_to_gps,
+    nearest_from,
+)
+
+COORDINATES_8_RUE_LA_FAYETTE = (2.334332, 48.873258)
+COORDINATES_12_RUE_HALEVY = (2.333123, 48.872321)
+COORDINATES_10_PLACE_OPERA = (2.331972, 48.871423)
+COORDINATES_28_BOULEVARD_CAPUCINES = (2.328364, 48.870152)
 
 
 def test_lamber93_to_gps():
@@ -29,4 +39,21 @@ def test_haversine_formulat(coordinates1, coordinates2, expected):
             coordinates2[1],
         )
         == expected
+    )
+
+
+def test_nearest_from():
+    assert (
+        nearest_from(
+            COORDINATES_28_BOULEVARD_CAPUCINES,
+            iter(
+                (
+                    COORDINATES_12_RUE_HALEVY,
+                    COORDINATES_8_RUE_LA_FAYETTE,
+                    COORDINATES_10_PLACE_OPERA,
+                )
+            ),
+            lambda k: (k[0], k[1]),
+        )
+        == COORDINATES_10_PLACE_OPERA
     )

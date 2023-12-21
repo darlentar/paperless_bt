@@ -1,4 +1,5 @@
 import math
+from typing import Callable, Iterator, TypeVar
 
 from pyproj import Transformer
 
@@ -39,3 +40,32 @@ def lamber93_to_gps(x: int, y: int) -> tuple[int, int]:
         "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
     )
     return lambert.transform(x, y)
+
+
+T = TypeVar("T")
+
+
+def nearest_from(
+    target: tuple[float, float],
+    choices: Iterator[T],
+    choice_coordinates: Callable[[T], tuple[float, float]],
+) -> T:
+    nearest_choice = next(choices)
+    for choice in choices:
+        nearest_choice_coordinates = choice_coordinates(nearest_choice)
+        candidate_choice_coordinates = choice_coordinates(choice)
+        nearest_to_search = compute_haversine(
+            nearest_choice_coordinates[0],
+            target[0],
+            nearest_choice_coordinates[1],
+            target[1],
+        )
+        candidate_to_search = compute_haversine(
+            candidate_choice_coordinates[0],
+            target[0],
+            candidate_choice_coordinates[1],
+            target[1],
+        )
+        if candidate_to_search < nearest_to_search:
+            nearest_choice = choice
+    return nearest_choice
