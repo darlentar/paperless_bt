@@ -6,9 +6,11 @@ from paperless_bt.mobile_site import (
     ProviderResolver,
     UnknownProvider,
     convert_lanbert93_to_gps,
+    mobile_site_gps_row_to_mobilesite,
     mobile_site_row_to_mobilesite,
     read_mnc,
     read_mobile_site,
+    read_mobile_site_gps,
 )
 
 
@@ -25,12 +27,37 @@ def test_read_mobile_site():
     )
 
 
+def test_read_mobile_site_gps():
+    # TODO Do not hardcode this
+    mobile_sites = read_mobile_site_gps("site_mobiles_gps.csv")
+    assert len(mobile_sites) == 77147
+    assert mobile_sites[-1] == MobileSiteGPS(
+        provider="20801",
+        gps=(pytest.approx(9.5503891), pytest.approx(42.2843603)),
+        has_2g=True,
+        has_3g=True,
+        has_4g=True,
+    )
+
+
 def test_mobile_site_row_to_mobilesite():
     assert mobile_site_row_to_mobilesite(
         ["20801", "12345", "6789", "1", "0", "0"]
     ) == MobileSite(
         provider="20801",
         lambert93=(12345, 6789),
+        has_2g=True,
+        has_3g=False,
+        has_4g=False,
+    )
+
+
+def test_mobile_site_gps_row_to_mobilesite():
+    assert mobile_site_gps_row_to_mobilesite(
+        ["20801", "123.45", "678.9", "True", "False", "False"]
+    ) == MobileSiteGPS(
+        provider="20801",
+        gps=(123.45, 678.9),
         has_2g=True,
         has_3g=False,
         has_4g=False,
