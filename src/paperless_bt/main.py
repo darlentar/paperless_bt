@@ -5,10 +5,14 @@ from functools import wraps
 
 import click
 import uvicorn
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 
-from .address_api import parse_address_api_response, request_address_api
+from .address_api import (
+    AddressAPIError,
+    parse_address_api_response,
+    request_address_api,
+)
 from .coordinates import compute_haversine, nearest_from
 from .mobile_site import (
     MobileSiteGPS,
@@ -61,9 +65,13 @@ async def root(
     provider_resolver=Depends(get_provider_resolver),
 ) -> NearestMobileSitesOut:
     # TODO: What happend when there is no features
-    first_feature = parse_address_api_response(
-        await request_address_api(search)
-    ).features[0]
+    try:
+        first_feature = parse_address_api_response(
+            await request_address_api(search)
+        ).features[0]
+    # something bad happened to know gps cooardinates so give up early
+    except AddressAPIError:
+        raise HTTPException(status_code=500, detail="Can't found GPS coordinates.")
     search_site_coordinates = first_feature.geometry.coordinates
     nearest_mobile_site_by_providers = {}
     for provider in mobile_sites_by_providers:

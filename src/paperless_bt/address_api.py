@@ -1,5 +1,5 @@
 import aiohttp
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 
 class Geometry(BaseModel):
@@ -30,7 +30,10 @@ class FeatureCollection(BaseModel):
 
 
 def parse_address_api_response(response: str) -> FeatureCollection:
-    return FeatureCollection.model_validate_json(response)
+    try:
+        return FeatureCollection.model_validate_json(response)
+    except ValidationError:
+        raise AddressAPIError("could not parse response")
 
 
 class AddressAPIError(Exception):
@@ -43,5 +46,6 @@ async def request_address_api(search: str) -> str:
             f"https://api-adresse.data.gouv.fr/search/?q={search}"
         ) as response:
             if response.status != 200:
-                raise AddressAPIError
+                error = f"{response.status}: {response.reason}"
+                raise AddressAPIError(f"could not make http request: {error}")
             return await response.text()

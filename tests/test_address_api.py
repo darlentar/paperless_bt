@@ -1,3 +1,4 @@
+from collections import namedtuple
 from unittest.mock import patch
 
 import pytest
@@ -30,6 +31,12 @@ def test_parse_address_api_response(address_api_json):
     )
 
 
+def test_parse_address_api_response_not_valid():
+    with pytest.raises(AddressAPIError) as ex:
+        parse_address_api_response("PLOP")
+    assert "could not parse response" in str(ex.value)
+
+
 @pytest.mark.http_request
 @pytest.mark.asyncio
 async def test_request_address_api():
@@ -40,9 +47,20 @@ async def test_request_address_api():
     assert isinstance(parse_address_api_response(response), FeatureCollection)
 
 
+class WithAiohttpContext:
+    async def __aenter__(self, *args, **kwargs):
+        Response = namedtuple("Response", ["status", "reason"])
+        return Response(status=400, reason="Not Found")
+
+    async def __aexit__(self, *args, **kwargs):
+        pass
+
+
 @pytest.mark.asyncio
 async def test_request_address_api_not_200():
     with patch("aiohttp.ClientSession.get") as mock:
-        mock.return_value.__enter__.return_value = 400
-        with pytest.raises(AddressAPIError):
+        mock.return_value = WithAiohttpContext()
+        with pytest.raises(AddressAPIError) as ex:
             await request_address_api(search="8+bd+du+port")
+        assert "could not make http request" in str(ex.value)
+        assert "400" in str(ex.value)
