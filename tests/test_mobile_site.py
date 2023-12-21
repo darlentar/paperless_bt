@@ -2,8 +2,10 @@ import pytest
 from paperless_bt.mobile_site import (
     BrandMobileCodes,
     MobileSite,
+    MobileSiteGPS,
     ProviderResolver,
     UnknownProvider,
+    convert_lanbert93_to_gps,
     read_mnc,
     read_mobile_site,
 )
@@ -77,3 +79,21 @@ def test_provider_resolver_with_unknown_id(
     with pytest.raises(UnknownProvider) as ex:
         provider_resolver.resolve(provider_id)
     assert provider_id in str(ex.value)
+
+
+def test_convert_lambert93_to_gps():
+    assert convert_lanbert93_to_gps(
+        MobileSite(
+            provider="20801",
+            lambert93=(1240585, 6154019),
+            has_2g=True,
+            has_3g=True,
+            has_4g=True,
+        )
+    ) == MobileSiteGPS(
+        provider="20801",
+        gps=(pytest.approx(9.5503891), pytest.approx(42.2843603)),
+        has_2g=True,
+        has_3g=True,
+        has_4g=True,
+    )

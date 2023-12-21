@@ -1,11 +1,22 @@
 import csv
 from dataclasses import dataclass
 
+from paperless_bt.coordinates import lamber93_to_gps
+
 
 @dataclass
 class MobileSite:
     provider: str
     lambert93: tuple[int, int]
+    has_2g: bool
+    has_3g: bool
+    has_4g: bool
+
+
+@dataclass
+class MobileSiteGPS:
+    provider: str
+    gps: tuple[float, float]
     has_2g: bool
     has_3g: bool
     has_4g: bool
@@ -87,3 +98,13 @@ class ProviderResolver:
 
 class UnknownProvider(Exception):
     pass
+
+
+def convert_lanbert93_to_gps(mobile_site: MobileSite) -> MobileSiteGPS:
+    return MobileSiteGPS(
+        provider=mobile_site.provider,
+        gps=lamber93_to_gps(*mobile_site.lambert93),
+        has_2g=mobile_site.has_2g,
+        has_3g=mobile_site.has_3g,
+        has_4g=mobile_site.has_4g,
+    )
