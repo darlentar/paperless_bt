@@ -1,41 +1,18 @@
 import asyncio
 import csv
-from collections import defaultdict
 from functools import wraps
 
 import click
 import uvicorn
-from fastapi import Depends, FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI
 
-from .address_api import (
-    AddressAPIError,
-    parse_address_api_response,
-    request_address_api,
-)
-from .coordinates import compute_haversine, nearest_from
+from .application_router import ApplicationRouterBuilder
 from .mobile_site import (
-    MobileSiteGPS,
-    ProviderResolver,
     convert_lanbert93_to_gps,
-    read_mnc,
     read_mobile_site,
-    read_mobile_site_gps,
 )
 
-MAX_DISTANCE_AUTHORIZED = 10e3
 app = FastAPI()
-
-
-class NearestMobileSiteOut(BaseModel):
-    provider: str
-    has_2g: bool
-    has_3g: bool
-    has_4g: bool
-
-
-class NearestMobileSitesOut(BaseModel):
-    site: list[NearestMobileSiteOut]
 
 
 @click.group()
@@ -43,69 +20,6 @@ def cli():
     import logging
 
     logging.basicConfig(format="[%(asctime)s] %(filename)s->%(funcName)s: %(message)s")
-
-
-def get_mobile_sites() -> dict[str, list[MobileSiteGPS]]:
-    mobile_sites = read_mobile_site_gps("site_mobiles_gps.csv")
-    mobile_sites_by_providers = defaultdict(list)
-    for mobile_site in mobile_sites:
-        mobile_sites_by_providers[mobile_site.provider].append(mobile_site)
-    return mobile_sites_by_providers
-
-
-def get_provider_resolver(
-    mobile_sites=Depends(get_mobile_sites),
-) -> ProviderResolver:
-    brand_mobile_codes = read_mnc("french_mnc.csv")
-    return ProviderResolver(
-        mobile_sites=mobile_sites,
-        brand_mobile_codes=brand_mobile_codes,
-    )
-
-
-@app.get("/")
-async def root(
-    search: str,
-    mobile_sites_by_providers=Depends(get_mobile_sites),
-    provider_resolver=Depends(get_provider_resolver),
-) -> NearestMobileSitesOut:
-    try:
-        first_feature = parse_address_api_response(
-            await request_address_api(search)
-        ).features[0]
-    # something bad happened to know gps cooardinates so give up early
-    except (AddressAPIError, IndexError):
-        raise HTTPException(
-            status_code=500,
-            detail="Can't found GPS coordinates.",
-        )
-    search_site_coordinates = first_feature.geometry.coordinates
-    nearest_mobile_site_by_providers = {}
-    for provider in mobile_sites_by_providers:
-        nearest_mobile_site_by_providers[provider] = nearest_from(
-            (search_site_coordinates[0], search_site_coordinates[1]),
-            iter(mobile_sites_by_providers[provider]),
-            lambda mobile_site: (mobile_site.gps[0], mobile_site.gps[1]),
-        )
-
-    return NearestMobileSitesOut(
-        site=[
-            NearestMobileSiteOut(
-                provider=provider_resolver.resolve(mobile_site.provider),
-                has_2g=mobile_site.has_2g,
-                has_3g=mobile_site.has_3g,
-                has_4g=mobile_site.has_4g,
-            )
-            for mobile_site in nearest_mobile_site_by_providers.values()
-            if compute_haversine(
-                mobile_site.gps[0],
-                search_site_coordinates[0],
-                mobile_site.gps[1],
-                search_site_coordinates[1],
-            )
-            < MAX_DISTANCE_AUTHORIZED
-        ]
-    )
 
 
 def async_cmd(f):
@@ -118,11 +32,19 @@ def async_cmd(f):
 
 
 @cli.command()
+@click.argument("mnc_csv", type=click.Path(exists=True))
+@click.argument("mobile_site_gps_csv", type=click.Path(exists=True))
 @async_cmd
-async def run():
+async def run(mnc_csv, mobile_site_gps_csv):
     """Run the server."""
+    app.include_router(
+        ApplicationRouterBuilder(
+            mnc_csv,
+            mobile_site_gps_csv,
+        ).build()
+    )
     config = uvicorn.Config(
-        "paperless_bt.main:app",
+        app,
         port=5000,
         log_level="info",
     )

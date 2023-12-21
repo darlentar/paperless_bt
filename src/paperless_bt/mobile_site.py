@@ -125,7 +125,7 @@ def read_mnc(filename: str) -> list[BrandMobileCodes]:
 class ProviderResolver:
     def __init__(
         self,
-        mobile_sites: list[MobileSite],
+        mobile_sites: list[MobileSiteGPS],
         brand_mobile_codes: list[BrandMobileCodes],
     ):
         self.mobile_sites = mobile_sites

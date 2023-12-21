@@ -111,7 +111,7 @@ def french_mnc() -> list[BrandMobileCodes]:
 
 @pytest.fixture()
 def provider_resolver(
-    mobile_sites: list[MobileSite],
+    mobile_sites: list[MobileSiteGPS],
     french_mnc: list[BrandMobileCodes],
 ) -> ProviderResolver:
     return ProviderResolver(

@@ -1,13 +1,17 @@
-# python-quickstart
+# paperless_bt
 
-Just a simple package to bootstrap a python project with pdm.
+To run this software you need `pdm`. You can install it with `pipx` or your favorite distribution package.
 
-Steps:
-- Rename package name in `pyproject.toml` file
-- Remove dummy test `tests/test_dummpy.py` file
-- Check everything with `tox`
+To run the server
+````
+# create the venv
+pdm sync
+. ./venv/bin/activate
+paperless_bt run french_mnc.csv site_mobiles_gps.csv
+````
 
-It uses:
-- mypy (for typing)
-- pytest (for testing)
-- ruff (for formatting/linting)
+If for some reasons you need to regenate the csv file with GPS cooardinates:
+````
+paperless_bt generate site_mobiles.csv site_mobiles_gps.csv
+````
+
