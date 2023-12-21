@@ -22,6 +22,16 @@ class MobileSiteGPS:
     has_4g: bool
 
 
+def mobile_site_row_to_mobilesite(row: list[str]) -> MobileSite:
+    return MobileSite(
+        provider=row[0],
+        lambert93=(int(row[1]), int(row[2])),
+        has_2g=row[3] == "1",
+        has_3g=row[4] == "1",
+        has_4g=row[5] == "1",
+    )
+
+
 def read_mobile_site(filename: str) -> list[MobileSite]:
     res = []
     with open(filename, newline="") as csvfile:
@@ -30,15 +40,7 @@ def read_mobile_site(filename: str) -> list[MobileSite]:
         next(mobile_site_reader, None)
         for row in mobile_site_reader:
             try:
-                res.append(
-                    MobileSite(
-                        provider=row[0],
-                        lambert93=(int(row[1]), int(row[2])),
-                        has_2g=bool(row[3]),
-                        has_3g=bool(row[4]),
-                        has_4g=bool(row[5]),
-                    )
-                )
+                res.append(mobile_site_row_to_mobilesite(row))
             except ValueError:
                 # we ignore the line if we can't convert the values
                 # TODO: should be logged

@@ -6,6 +6,7 @@ from paperless_bt.mobile_site import (
     ProviderResolver,
     UnknownProvider,
     convert_lanbert93_to_gps,
+    mobile_site_row_to_mobilesite,
     read_mnc,
     read_mobile_site,
 )
@@ -21,6 +22,18 @@ def test_read_mobile_site():
         has_2g=True,
         has_3g=True,
         has_4g=True,
+    )
+
+
+def test_mobile_site_row_to_mobilesite():
+    assert mobile_site_row_to_mobilesite(
+        ["20801", "12345", "6789", "1", "0", "0"]
+    ) == MobileSite(
+        provider="20801",
+        lambert93=(12345, 6789),
+        has_2g=True,
+        has_3g=False,
+        has_4g=False,
     )
 
 
