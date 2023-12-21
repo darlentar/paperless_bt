@@ -10,10 +10,15 @@ dependencies = [
     "aiohttp>=3.9.1",
     "pytest-asyncio>=0.23.2",
     "pyproj>=3.6.1",
+    "click>=8.1.7",
+    "uvicorn[standard]>=0.25.0",
 ]
 requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "MIT"}
+
+[project.scripts]
+paperless-bt = "paperless_bt.main:cli"
 
 [tool.pdm.dev-dependencies]
 dev = [
