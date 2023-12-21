@@ -23,6 +23,7 @@ from .mobile_site import (
     read_mobile_site_gps,
 )
 
+MAX_DISTANCE_AUTHORIZED = 10e3
 app = FastAPI()
 
 
@@ -99,7 +100,7 @@ async def root(
                 mobile_site.gps[1],
                 search_site_coordinates[1],
             )
-            < 10_000e3
+            < MAX_DISTANCE_AUTHORIZED
         ]
     )
 
