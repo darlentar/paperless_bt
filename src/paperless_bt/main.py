@@ -131,10 +131,12 @@ async def run():
 
 
 @cli.command()
-def generate():
+@click.argument("input", type=click.Path(exists=True))
+@click.argument("output", type=click.Path())
+def generate(input, output):
     """Generate mobile site from lamber 93 coordinates to GPS."""
-    mobile_sites = read_mobile_site("site_mobiles.csv")
-    with open("site_mobiles_gps.csv", "w", newline="") as f:
+    mobile_sites = read_mobile_site(input)
+    with open(output, "w", newline="") as f:
         mobile_site_csv_writter = csv.writer(f, delimiter=" ", quotechar='"')
         for mobile_site in mobile_sites:
             mobile_site = convert_lanbert93_to_gps(mobile_site)
