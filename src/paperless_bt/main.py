@@ -65,13 +65,12 @@ async def root(
     mobile_sites_by_providers=Depends(get_mobile_sites),
     provider_resolver=Depends(get_provider_resolver),
 ) -> NearestMobileSitesOut:
-    # TODO: What happend when there is no features
     try:
         first_feature = parse_address_api_response(
             await request_address_api(search)
         ).features[0]
     # something bad happened to know gps cooardinates so give up early
-    except AddressAPIError:
+    except (AddressAPIError, IndexError):
         raise HTTPException(
             status_code=500,
             detail="Can't found GPS coordinates.",
