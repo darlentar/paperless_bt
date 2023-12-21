@@ -51,7 +51,9 @@ def get_mobile_sites() -> dict[str, list[MobileSiteGPS]]:
     return mobile_sites_by_providers
 
 
-def get_provider_resolver(mobile_sites=Depends(get_mobile_sites)) -> ProviderResolver:
+def get_provider_resolver(
+    mobile_sites=Depends(get_mobile_sites),
+) -> ProviderResolver:
     brand_mobile_codes = read_mnc("french_mnc.csv")
     return ProviderResolver(
         mobile_sites=mobile_sites,
