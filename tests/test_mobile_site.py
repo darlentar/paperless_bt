@@ -1,8 +1,11 @@
+import os
+
 import pytest
 from paperless_bt.mobile_site import (
     BrandMobileCodes,
     MobileSite,
     MobileSiteGPS,
+    MobileSiteGPSFormatError,
     ProviderResolver,
     UnknownProvider,
     convert_lanbert93_to_gps,
@@ -38,6 +41,18 @@ def test_read_mobile_site_gps():
         has_3g=True,
         has_4g=True,
     )
+
+
+def test_read_mobile_site_gps_with_empty_file():
+    with pytest.raises(MobileSiteGPSFormatError):
+        read_mobile_site_gps("/dev/null")
+
+
+def test_read_mobile_site_gps_with_wrong_format():
+    uncorrect_format = os.path.abspath(__file__)
+    print(uncorrect_format)
+    with pytest.raises(MobileSiteGPSFormatError):
+        read_mobile_site_gps(uncorrect_format)
 
 
 def test_mobile_site_row_to_mobilesite():

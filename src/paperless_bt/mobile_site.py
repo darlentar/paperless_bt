@@ -4,6 +4,10 @@ from dataclasses import dataclass
 from paperless_bt.coordinates import lamber93_to_gps
 
 
+class MobileSiteGPSFormatError(Exception):
+    pass
+
+
 @dataclass
 class MobileSite:
     provider: str
@@ -66,9 +70,10 @@ def read_mobile_site_gps(filename: str) -> list[MobileSiteGPS]:
             try:
                 res.append(mobile_site_gps_row_to_mobilesite(row))
             except ValueError:
-                # we ignore the line if we can't convert the values
-                # TODO: should be logged
-                pass
+                raise MobileSiteGPSFormatError
+    # we should have at least one line
+    if res == []:
+        raise MobileSiteGPSFormatError
     return res
 
 
