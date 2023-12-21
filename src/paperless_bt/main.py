@@ -71,7 +71,10 @@ async def root(
         ).features[0]
     # something bad happened to know gps cooardinates so give up early
     except AddressAPIError:
-        raise HTTPException(status_code=500, detail="Can't found GPS coordinates.")
+        raise HTTPException(
+            status_code=500,
+            detail="Can't found GPS coordinates.",
+        )
     search_site_coordinates = first_feature.geometry.coordinates
     nearest_mobile_site_by_providers = {}
     for provider in mobile_sites_by_providers:
