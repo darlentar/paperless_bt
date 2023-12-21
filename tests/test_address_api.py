@@ -1,5 +1,8 @@
+from unittest.mock import patch
+
 import pytest
 from paperless_bt.address_api import (
+    AddressAPIError,
     Feature,
     FeatureCollection,
     Geometry,
@@ -35,3 +38,11 @@ async def test_request_address_api():
     # we just check that response is a FeatureCollection if parsing failed
     # it raises an error.
     assert isinstance(parse_address_api_response(response), FeatureCollection)
+
+
+@pytest.mark.asyncio
+async def test_request_address_api_not_200():
+    with patch("aiohttp.ClientSession.get") as mock:
+        mock.return_value.__enter__.return_value = 400
+        with pytest.raises(AddressAPIError):
+            await request_address_api(search="8+bd+du+port")
