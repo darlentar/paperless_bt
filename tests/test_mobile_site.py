@@ -3,7 +3,9 @@ import os
 import pytest
 from paperless_bt.mobile_site import (
     BrandMobileCodes,
+    MNCFormatError,
     MobileSite,
+    MobileSiteFormatError,
     MobileSiteGPS,
     MobileSiteGPSFormatError,
     ProviderResolver,
@@ -43,16 +45,23 @@ def test_read_mobile_site_gps():
     )
 
 
-def test_read_mobile_site_gps_with_empty_file():
-    with pytest.raises(MobileSiteGPSFormatError):
-        read_mobile_site_gps("/dev/null")
+uncorrect_format = os.path.abspath(__file__)
 
 
-def test_read_mobile_site_gps_with_wrong_format():
-    uncorrect_format = os.path.abspath(__file__)
-    print(uncorrect_format)
-    with pytest.raises(MobileSiteGPSFormatError):
-        read_mobile_site_gps(uncorrect_format)
+@pytest.mark.parametrize(
+    "function,file,exception",
+    [
+        (read_mnc, "/dev/null", MNCFormatError),
+        (read_mnc, uncorrect_format, MNCFormatError),
+        (read_mobile_site, "/dev/null", MobileSiteFormatError),
+        (read_mobile_site, uncorrect_format, MobileSiteFormatError),
+        (read_mobile_site_gps, "/dev/null", MobileSiteGPSFormatError),
+        (read_mobile_site_gps, uncorrect_format, MobileSiteGPSFormatError),
+    ],
+)
+def test_format_error(function, file, exception):
+    with pytest.raises(exception):
+        function(file)
 
 
 def test_mobile_site_row_to_mobilesite():

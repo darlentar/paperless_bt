@@ -1,7 +1,18 @@
 import csv
+import logging
 from dataclasses import dataclass
 
 from paperless_bt.coordinates import lamber93_to_gps
+
+logger = logging.getLogger(__name__)
+
+
+class MNCFormatError(Exception):
+    pass
+
+
+class MobileSiteFormatError(Exception):
+    pass
 
 
 class MobileSiteGPSFormatError(Exception):
@@ -51,14 +62,16 @@ def read_mobile_site(filename: str) -> list[MobileSite]:
     with open(filename, newline="") as csvfile:
         mobile_site_reader = csv.reader(csvfile, delimiter=";")
         # ignore headers
-        next(mobile_site_reader, None)
+        try:
+            next(mobile_site_reader)
+        except StopIteration:
+            raise MobileSiteFormatError
         for row in mobile_site_reader:
             try:
                 res.append(mobile_site_row_to_mobilesite(row))
-            except ValueError:
-                # we ignore the line if we can't convert the values
-                # TODO: should be logged
-                pass
+            except (IndexError, ValueError):
+                logger.error("incorrect row{}".format(row))
+                raise MobileSiteFormatError
     return res
 
 
@@ -69,7 +82,8 @@ def read_mobile_site_gps(filename: str) -> list[MobileSiteGPS]:
         for row in mobile_site_gps_reader:
             try:
                 res.append(mobile_site_gps_row_to_mobilesite(row))
-            except ValueError:
+            except (IndexError, ValueError):
+                logger.error("incorrect row: {}".format(row))
                 raise MobileSiteGPSFormatError
     # we should have at least one line
     if res == []:
@@ -99,10 +113,12 @@ def read_mnc(filename: str) -> list[BrandMobileCodes]:
                         brand=row[2],
                     )
                 )
-            except ValueError:
-                # we ignore the line if we can't convert the values
-                # TODO: should be logged
-                pass
+            except (IndexError, ValueError):
+                logger.error("incorrect row{}".format(row))
+                raise MNCFormatError
+    # we sould have at least one line
+    if res == []:
+        raise MNCFormatError
     return res
 
 

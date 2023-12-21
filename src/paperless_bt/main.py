@@ -40,7 +40,9 @@ class NearestMobileSitesOut(BaseModel):
 
 @click.group()
 def cli():
-    pass
+    import logging
+
+    logging.basicConfig(format="[%(asctime)s] %(filename)s->%(funcName)s: %(message)s")
 
 
 def get_mobile_sites() -> dict[str, list[MobileSiteGPS]]:
