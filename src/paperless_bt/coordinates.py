@@ -49,8 +49,12 @@ def nearest_from(
     target: tuple[float, float],
     choices: Iterator[T],
     choice_coordinates: Callable[[T], tuple[float, float]],
-) -> T:
-    nearest_choice = next(choices)
+) -> T | None:
+    try:
+        nearest_choice = next(choices)
+    # we had no values in the iterator
+    except StopIteration:
+        return None
     for choice in choices:
         nearest_choice_coordinates = choice_coordinates(nearest_choice)
         candidate_choice_coordinates = choice_coordinates(choice)

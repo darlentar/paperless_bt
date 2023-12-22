@@ -1,4 +1,6 @@
+import itertools
 from collections import defaultdict
+from typing import Callable
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -8,14 +10,13 @@ from .address_api import (
     parse_address_api_response,
     request_address_api,
 )
-from .coordinates import compute_haversine, nearest_from
+from .coordinates import nearest_from
 from .mobile_site import (
+    MobileSiteGPS,
     ProviderResolver,
     read_mnc,
     read_mobile_site_gps,
 )
-
-MAX_DISTANCE_AUTHORIZED = 10e3
 
 
 class NearestMobileSiteOut(BaseModel):
@@ -74,13 +75,34 @@ class ApplicationRouterBuilder:
                     detail="Can't found GPS coordinates.",
                 )
             search_site_coordinates = first_feature.geometry.coordinates
-            nearest_mobile_site_by_providers = {}
-            for provider in self.mobile_sites_by_providers:
-                nearest_mobile_site_by_providers[provider] = nearest_from(
-                    (search_site_coordinates[0], search_site_coordinates[1]),
-                    iter(self.mobile_sites_by_providers[provider]),
-                    lambda mobile_site: (mobile_site.gps[0], mobile_site.gps[1]),
-                )
+
+            def nearest_mobile_site_by_provider(
+                predicate: Callable[[MobileSiteGPS], bool],
+            ):
+                res = {}
+                for provider in self.mobile_sites_by_providers:
+                    nearest = nearest_from(
+                        (search_site_coordinates[0], search_site_coordinates[1]),
+                        (
+                            site
+                            for site in self.mobile_sites_by_providers[provider]
+                            if predicate(site)
+                        ),
+                        lambda mobile_site: (mobile_site.gps[0], mobile_site.gps[1]),
+                    )
+                    if nearest:
+                        res[provider] = nearest
+                return res
+
+            nearest_2g_mobile_site_by_providers = nearest_mobile_site_by_provider(
+                lambda m: m.has_2g
+            )
+            nearest_3g_mobile_site_by_providers = nearest_mobile_site_by_provider(
+                lambda m: m.has_3g
+            )
+            nearest_4g_mobile_site_by_providers = nearest_mobile_site_by_provider(
+                lambda m: m.has_4g
+            )
 
             if full:
                 return NearestMobileSitesFullOut(
@@ -94,14 +116,11 @@ class ApplicationRouterBuilder:
                             has_3g=mobile_site.has_3g,
                             has_4g=mobile_site.has_4g,
                         )
-                        for mobile_site in nearest_mobile_site_by_providers.values()
-                        if compute_haversine(
-                            mobile_site.gps[0],
-                            search_site_coordinates[0],
-                            mobile_site.gps[1],
-                            search_site_coordinates[1],
+                        for mobile_site in itertools.chain(
+                            nearest_2g_mobile_site_by_providers.values(),
+                            nearest_3g_mobile_site_by_providers.values(),
+                            nearest_4g_mobile_site_by_providers.values(),
                         )
-                        < MAX_DISTANCE_AUTHORIZED
                     ]
                 )
             else:
@@ -115,14 +134,11 @@ class ApplicationRouterBuilder:
                             has_3g=mobile_site.has_3g,
                             has_4g=mobile_site.has_4g,
                         )
-                        for mobile_site in nearest_mobile_site_by_providers.values()
-                        if compute_haversine(
-                            mobile_site.gps[0],
-                            search_site_coordinates[0],
-                            mobile_site.gps[1],
-                            search_site_coordinates[1],
+                        for mobile_site in itertools.chain(
+                            nearest_2g_mobile_site_by_providers.values(),
+                            nearest_3g_mobile_site_by_providers.values(),
+                            nearest_4g_mobile_site_by_providers.values(),
                         )
-                        < MAX_DISTANCE_AUTHORIZED
                     ]
                 )
 

@@ -57,3 +57,14 @@ def test_nearest_from():
         )
         == COORDINATES_10_PLACE_OPERA
     )
+
+
+def test_nearest_from_empty():
+    assert (
+        nearest_from(
+            COORDINATES_28_BOULEVARD_CAPUCINES,
+            iter([]),
+            lambda k: (k[0], k[1]),
+        )
+        is None
+    )
