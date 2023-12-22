@@ -25,8 +25,20 @@ class NearestMobileSiteOut(BaseModel):
     has_4g: bool
 
 
+class NearestMobileSiteFullOut(BaseModel):
+    provider: str
+    coordinates: tuple[float, float]
+    has_2g: bool
+    has_3g: bool
+    has_4g: bool
+
+
 class NearestMobileSitesOut(BaseModel):
     site: list[NearestMobileSiteOut]
+
+
+class NearestMobileSitesFullOut(BaseModel):
+    site: list[NearestMobileSiteFullOut]
 
 
 class ApplicationRouterBuilder:
@@ -49,7 +61,8 @@ class ApplicationRouterBuilder:
         @router.get("/")
         async def root(
             search: str,
-        ) -> NearestMobileSitesOut:
+            full: bool = False,
+        ) -> NearestMobileSitesOut | NearestMobileSitesFullOut:
             try:
                 first_feature = parse_address_api_response(
                     await request_address_api(search)
@@ -69,23 +82,48 @@ class ApplicationRouterBuilder:
                     lambda mobile_site: (mobile_site.gps[0], mobile_site.gps[1]),
                 )
 
-            return NearestMobileSitesOut(
-                site=[
-                    NearestMobileSiteOut(
-                        provider=self.provider_resolver.resolve(mobile_site.provider),
-                        has_2g=mobile_site.has_2g,
-                        has_3g=mobile_site.has_3g,
-                        has_4g=mobile_site.has_4g,
-                    )
-                    for mobile_site in nearest_mobile_site_by_providers.values()
-                    if compute_haversine(
-                        mobile_site.gps[0],
-                        search_site_coordinates[0],
-                        mobile_site.gps[1],
-                        search_site_coordinates[1],
-                    )
-                    < MAX_DISTANCE_AUTHORIZED
-                ]
-            )
+            if full:
+                return NearestMobileSitesFullOut(
+                    site=[
+                        NearestMobileSiteFullOut(
+                            provider=self.provider_resolver.resolve(
+                                mobile_site.provider
+                            ),
+                            coordinates=(mobile_site.gps[0], mobile_site.gps[1]),
+                            has_2g=mobile_site.has_2g,
+                            has_3g=mobile_site.has_3g,
+                            has_4g=mobile_site.has_4g,
+                        )
+                        for mobile_site in nearest_mobile_site_by_providers.values()
+                        if compute_haversine(
+                            mobile_site.gps[0],
+                            search_site_coordinates[0],
+                            mobile_site.gps[1],
+                            search_site_coordinates[1],
+                        )
+                        < MAX_DISTANCE_AUTHORIZED
+                    ]
+                )
+            else:
+                return NearestMobileSitesOut(
+                    site=[
+                        NearestMobileSiteOut(
+                            provider=self.provider_resolver.resolve(
+                                mobile_site.provider
+                            ),
+                            has_2g=mobile_site.has_2g,
+                            has_3g=mobile_site.has_3g,
+                            has_4g=mobile_site.has_4g,
+                        )
+                        for mobile_site in nearest_mobile_site_by_providers.values()
+                        if compute_haversine(
+                            mobile_site.gps[0],
+                            search_site_coordinates[0],
+                            mobile_site.gps[1],
+                            search_site_coordinates[1],
+                        )
+                        < MAX_DISTANCE_AUTHORIZED
+                    ]
+                )
 
         return router
