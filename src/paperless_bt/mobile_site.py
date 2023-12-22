@@ -1,8 +1,9 @@
 import csv
 import logging
+from collections import defaultdict
 from dataclasses import dataclass
 
-from paperless_bt.coordinates import lamber93_to_gps
+from paperless_bt.coordinates import compute_haversine, lamber93_to_gps
 
 logger = logging.getLogger(__name__)
 
@@ -155,3 +156,26 @@ def convert_lanbert93_to_gps(mobile_site: MobileSite) -> MobileSiteGPS:
         has_3g=mobile_site.has_3g,
         has_4g=mobile_site.has_4g,
     )
+
+
+def filter_reachable_mobile_sites(
+    position: tuple[float, float],
+    mobile_sites: list[MobileSiteGPS],
+) -> dict[str, dict[str, list[MobileSiteGPS]]]:
+    res: dict[str, dict[str, list[MobileSiteGPS]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
+    for mobile_site in mobile_sites:
+        distance = compute_haversine(
+            position[0],
+            mobile_site.gps[0],
+            position[1],
+            mobile_site.gps[1],
+        )
+        if distance < 30e3 and mobile_site.has_2g:
+            res[mobile_site.provider]["2g"].append(mobile_site)
+        if distance < 5e3 and mobile_site.has_3g:
+            res[mobile_site.provider]["3g"].append(mobile_site)
+        if distance < 10e3 and mobile_site.has_4g:
+            res[mobile_site.provider]["4g"].append(mobile_site)
+    return res

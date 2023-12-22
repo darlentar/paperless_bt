@@ -11,6 +11,7 @@ from paperless_bt.mobile_site import (
     ProviderResolver,
     UnknownProvider,
     convert_lanbert93_to_gps,
+    filter_reachable_mobile_sites,
     mobile_site_gps_row_to_mobilesite,
     mobile_site_row_to_mobilesite,
     read_mnc,
@@ -161,3 +162,140 @@ def test_convert_lambert93_to_gps():
         has_3g=True,
         has_4g=True,
     )
+
+
+some_mobile_sites = [
+    MobileSiteGPS(
+        provider="20801",
+        # within 5km
+        gps=(7, 10.03),
+        has_2g=True,
+        has_3g=False,
+        has_4g=True,
+    ),
+    MobileSiteGPS(
+        provider="20801",
+        # within 5km
+        gps=(7, 10.04),
+        has_2g=True,
+        has_3g=True,
+        has_4g=True,
+    ),
+    MobileSiteGPS(
+        provider="20801",
+        # within 10km
+        gps=(7, 10.08),
+        has_2g=True,
+        has_3g=True,
+        has_4g=False,
+    ),
+    MobileSiteGPS(
+        provider="20801",
+        # within 10km
+        gps=(7, 10.09),
+        has_2g=True,
+        has_3g=True,
+        has_4g=True,
+    ),
+    MobileSiteGPS(
+        provider="20801",
+        # within 30km
+        gps=(7, 10.26),
+        has_2g=False,
+        has_3g=True,
+        has_4g=True,
+    ),
+    MobileSiteGPS(
+        provider="20801",
+        # within 30km
+        gps=(7, 10.27),
+        has_2g=True,
+        has_3g=True,
+        has_4g=True,
+    ),
+]
+
+
+def test_filter_reachable_mobile_sites():
+    assert filter_reachable_mobile_sites((7, 10), some_mobile_sites) == {
+        "20801": {
+            "2g": [
+                MobileSiteGPS(
+                    provider="20801",
+                    # within 5km
+                    gps=(7, 10.03),
+                    has_2g=True,
+                    has_3g=False,
+                    has_4g=True,
+                ),
+                MobileSiteGPS(
+                    provider="20801",
+                    # within 5km
+                    gps=(7, 10.04),
+                    has_2g=True,
+                    has_3g=True,
+                    has_4g=True,
+                ),
+                MobileSiteGPS(
+                    provider="20801",
+                    # within 10km
+                    gps=(7, 10.08),
+                    has_2g=True,
+                    has_3g=True,
+                    has_4g=False,
+                ),
+                MobileSiteGPS(
+                    provider="20801",
+                    # within 10km
+                    gps=(7, 10.09),
+                    has_2g=True,
+                    has_3g=True,
+                    has_4g=True,
+                ),
+                MobileSiteGPS(
+                    provider="20801",
+                    # within 30km
+                    gps=(7, 10.27),
+                    has_2g=True,
+                    has_3g=True,
+                    has_4g=True,
+                ),
+            ],
+            "3g": [
+                MobileSiteGPS(
+                    provider="20801",
+                    # within 5km
+                    gps=(7, 10.04),
+                    has_2g=True,
+                    has_3g=True,
+                    has_4g=True,
+                ),
+            ],
+            "4g": [
+                MobileSiteGPS(
+                    provider="20801",
+                    # within 5km
+                    gps=(7, 10.03),
+                    has_2g=True,
+                    has_3g=False,
+                    has_4g=True,
+                ),
+                MobileSiteGPS(
+                    provider="20801",
+                    # within 5km
+                    gps=(7, 10.04),
+                    has_2g=True,
+                    has_3g=True,
+                    has_4g=True,
+                ),
+                MobileSiteGPS(
+                    provider="20801",
+                    # within 10km
+                    gps=(7, 10.09),
+                    has_2g=True,
+                    has_3g=True,
+                    has_4g=True,
+                ),
+            ],
+        }
+    }
